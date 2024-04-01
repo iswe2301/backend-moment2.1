@@ -2,6 +2,10 @@
 const express = require("express");
 const app = express(); // Startar applikationen med express
 
+// Inkluderar och använder cors
+const cors = require("cors");
+app.use(cors());
+
 // Lagrar variabel för port, startar antingen enlgit inställningar i env-filen eller på port 3000
 const port = process.env.DB_PORT || 3000;
 
