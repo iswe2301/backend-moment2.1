@@ -12,6 +12,8 @@ const app = express(); // Startar applikationen med express
 const cors = require("cors");
 app.use(cors());
 
+app.use(express.json()); // Inkluderar middleware till express för att konvertera data till json automatiskt
+
 // Lagrar variabel för port, startar antingen enlgit inställningar i env-filen eller på port 3000
 const port = process.env.DB_PORT || 3000;
 
