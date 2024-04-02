@@ -38,6 +38,27 @@ client.connect((error) => {
     console.log("Ansluten till databasen!") // Skriver ut success-meddelande vid lyckad anslutning
 });
 
+// Skapar routes
+app.get("/api/workexperience", (req, res) => {
+    // Hämtar alla alla jobberfarenheter från DB
+    client.query(`SELECT * FROM workexperience;`, (err, results) => {
+        // Kontrollerar om fel finns
+        if (err) {
+            // Skriver ut error med felkod
+            res.status(500).json({ error: "Något gick fel: " + err });
+            return;
+        }
+        // Kontrollerar om det inte finns resultat
+        if (results.rows.length === 0) {
+            // Skriver ut felmeddelande med felkod om inga resultat finns
+            res.status(404).json({ message: "Inga jobberfarenheter funna" });
+        } else {
+            // Annars skickas resultatet
+            res.json(results.rows);
+        }
+    });
+});
+
 // Startar applikationen/servern
 app.listen(port, () => {
     console.log("Server startad på port: " + port);
