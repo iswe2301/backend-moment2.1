@@ -98,8 +98,8 @@ app.post("/api/workexperience", (req, res) => {
         return; // Avbryter funktionen
     }
 
-    // Lägger till nya jobberfarenheter till databasen
-    client.query(`INSERT INTO workexperience(companyname, jobtitle, location, startdate, enddate, description) VALUES($1, $2, $3, $4, $5, $6);`, [companyname, jobtitle, location, startdate, enddate, description], (err, results) => {
+    // Lägger till nya jobberfarenheter till databasen, returnerar skapat ID
+    client.query(`INSERT INTO workexperience(companyname, jobtitle, location, startdate, enddate, description) VALUES($1, $2, $3, $4, $5, $6) RETURNING id;`, [companyname, jobtitle, location, startdate, enddate, description], (err, results) => {
         // Kontrollerar om fel finns
         if (err) {
             // Skriver ut error med felkod
@@ -107,8 +107,11 @@ app.post("/api/workexperience", (req, res) => {
             return; // Avrbyter
         }
 
+        // Hämtar ID från resultatet och lagrar i variabel
+        let id = results.rows[0].id;
+
         // Loggar meddelande om fråga har lyckats skapas
-        console.log("Fråga skapad!");
+        console.log(`Jobberfarenhet med id "${id}" tillagd!`);
 
         // Skapar ett objekt som representerar jobberfarenheten
         let workexperience = {
@@ -121,7 +124,7 @@ app.post("/api/workexperience", (req, res) => {
         }
 
         // Skickar ett svar med meddelande om lyckad tilläggning och detaljerna om den tillagda jobberfarenheten
-        res.json({ message: "Jobberfarenhet tillagd", workexperience });
+        res.json({ message: `Jobberfarenhet med id "${id}" tillagd.`, workexperience });
 
     });
 });
@@ -129,7 +132,7 @@ app.post("/api/workexperience", (req, res) => {
 // Route för PUT (update), skickar med id för specifik tabellrad som ska uppdateras
 app.put("/api/workexperience/:id", (req, res) => {
     // Läser in den skickade datan
-    const id = req.params.id;
+    let id = req.params.id;
     let companyname = req.body.companyname;
     let jobtitle = req.body.jobtitle;
     let location = req.body.location;
@@ -176,11 +179,11 @@ app.put("/api/workexperience/:id", (req, res) => {
             // Kontrollerar om antalet påverkade rader är 0 (inget resultat stämmer med id)
             if (result.rowCount === 0) {
                 // Skriver ut felmeddelande isåfall och avbryter
-                res.status(404).json({ message: "Jobberfarenhet inte funnen." });
+                res.status(404).json({ message: `Ingen jobberfarenhet med id "${id}" kunde hittas.` });
                 return;
             } else {
                 // Loggar meddelande om fråga har uppdaterats
-                console.log("Fråga uppdaterad!");
+                console.log(`Jobberfarenhet med id "${id}" har uppdaterats!`);
 
                 // Skapar ett objekt som representerar jobberfarenheten
                 let workexperience = {
@@ -193,7 +196,7 @@ app.put("/api/workexperience/:id", (req, res) => {
                 }
 
                 // Skickar ett svar med meddelande om lyckad tilläggning och detaljerna om den tillagda jobberfarenheten
-                res.json({ message: "Jobberfarenhet uppdaterad", workexperience });
+                res.json({ message: `Jobberfarenhet med id "${id}" har uppdaterats.`, workexperience });
             }
         }
     );
