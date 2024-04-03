@@ -202,6 +202,33 @@ app.put("/api/workexperience/:id", (req, res) => {
     );
 });
 
+// Route för delete, skickar med id för specifik tabellrad som ska tas bort
+app.delete("/api/workexperience/:id", (req, res) => {
+    // Läser in id från den skickade datan
+    let id = req.params.id;
+
+    // Raderar specifik rad som stämmer överrens md ID från tabellen workexperience
+    client.query(`DELETE FROM workexperience WHERE id=$1`, [id], (err, result) => {
+        // Kontrollerar om fel finns
+        if (err) {
+            // Skriver ut felmeddelande och felkod, avrbyter körning av koden
+            res.status(500).json({ error: "Något gick fel vid borttagning: " + err });
+            return;
+        }
+        // Kontrollerar om antalet påverkade rader är 0 (inget resultat stämmer med id)
+        if (result.rowCount === 0) {
+            // Skriver ut felmeddelande och felkod, avbryter körning av koden
+            res.status(404).json({ message: `Ingen jobberfarenhet med id "${id}" kunde hittas.` });
+            return;
+        } else {
+            // Loggar meddelande om radering har lyckats tillsammans med berört id
+            console.log(`Jobberfarenhet med id "${id}" har raderats!`);
+            // Skickar ett svar att radering har lyckats tillsammans med berört id
+            res.json({ message: `Jobberfarehet med id "${id}" har raderats.` });
+        }
+    });
+});
+
 // Startar applikationen/servern
 app.listen(port, () => {
     console.log("Server startad på port: " + port);
