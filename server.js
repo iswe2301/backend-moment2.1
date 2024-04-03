@@ -61,6 +61,29 @@ app.get("/api/workexperience", (req, res) => {
     });
 });
 
+// Route för GET för att hämta en specifik arbetserfarenhet baserat på ID
+app.get("/api/workexperience/:id", (req, res) => {
+    // Hämtar ID från URL:en
+    let id = req.params.id;
+    // Hämtar jobberfarenheten från DB baserat på det specifika ID:et
+    client.query(`SELECT * FROM workexperience WHERE id = $1;`, [id], (err, results) => {
+        // Kontrollerar om fel finns
+        if (err) {
+            // Skriver ut error med felkod
+            res.status(500).json({ error: "Något gick fel: " + err });
+            return;
+        }
+        // Kontrollerar om det inte finns resultat
+        if (results.rows.length === 0) {
+            // Skriver ut felmeddelande med felkod om inga resultat finns
+            res.status(404).json({ message: `Ingen jobberfarenhet funnen med id "${id}"` });
+        } else {
+            // Annars skickas resultatet för den specifika jobberfarenheten
+            res.json(results.rows[0]);
+        }
+    });
+});
+
 // Route för POST
 app.post("/api/workexperience", (req, res) => {
     // Läser in den skickade datan
